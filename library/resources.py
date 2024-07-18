@@ -11,6 +11,8 @@ def home():
     return make_response(jsonify({'message':'pong'}),200)
 
 # register route
+# request json: {username: str, password: str}
+# return json: {message: str}
 @app.route('/signup', methods=['POST'])
 def signup_user(): 
     data = request.get_json() 
@@ -27,6 +29,8 @@ def signup_user():
         return make_response(jsonify({"message": "User already exists!"}), 409)
 
 # user login route
+# request json: {username: str, password: str}
+# return json: {token: str}
 @app.route('/login', methods=['POST'])
 def login():
     auth = request.get_json()
@@ -45,6 +49,9 @@ def login():
 
 
 #  add a post
+# header: {'content-type': "application/json",x-access-token: str}
+# request json: {title: str, content: str} 
+# return json: {message: str}
 @app.route('/blog/create-post', methods=['POST'])
 @token_required
 def create_post(current_user):
@@ -66,6 +73,9 @@ def create_post(current_user):
     return jsonify({'message' : 'new post created'})
 
 # get all posts
+# header: {'content-type': "application/json",x-access-token: str}
+# request json: {}
+# return json: {posts: [{id: int, title: str, content: str, owner: str}]}
 @app.route('/blog/posts', methods=['GET'])
 @token_required
 def get_posts(current_user):
@@ -77,12 +87,16 @@ def get_posts(current_user):
        post_data['id'] = post.id
        post_data['title'] = post.title
        post_data['content'] = post.content
-       post_data['owner'] = post.user_id
+       user = User.query.filter_by(id=post.user_id).first()
+       post_data['owner'] = user.username
        output.append(post_data)
  
    return jsonify({'posts' : output})
 
-# get all posts
+# get single post
+# header: {'content-type': "application/json",x-access-token: str}
+# request post_id: int
+# return json: {id: int, title: str, content: str, owner: str}
 @app.route('/blog/post/<post_id>', methods=['GET'])
 @token_required
 def get_post(current_user,post_id):
@@ -95,11 +109,15 @@ def get_post(current_user,post_id):
     post_data['id'] = post.id
     post_data['title'] = post.title
     post_data['content'] = post.content
-    post_data['owner'] = post.user_id
+    user = User.query.filter_by(id=post.user_id).first()
+    post_data['owner'] = user.username
 
     return jsonify(post_data)
 
 # editing a post
+# header: {'content-type': "application/json",x-access-token: str}
+# request json: {post_id: int, title: str, content: str} 
+# return json: {message: str}
 @app.route('/blog/edit-post', methods=['POST'])
 @token_required
 def edit_post(current_user): 
@@ -125,6 +143,9 @@ def edit_post(current_user):
     return jsonify({'message': 'post updated'})
 
 # deleting a post
+# header: {'content-type': "application/json",x-access-token: str}
+# request post_id: int
+# return json: {message: str}
 @app.route('/blog/delete-post/<post_id>', methods=['DELETE'])
 @token_required
 def delete_post(current_user,post_id): 

@@ -30,13 +30,39 @@ docker run blog-api
 - Parse auth token in `x-access-token` header.
 
 1. User register: POST `/signup`
+    - request json: {username: str, password: str}
+    - return json: {message: str}
 2. User login: POST `/login`
+    - request json: {username: str, password: str}
+    - return json: {token: str}
 3. Create a post: POST `/blog/create-post`
+    - header: {'content-type': "application/json",x-access-token: str}
+    - request json: {title: str, content: str} 
+    - return json: {message: str}
 4. Pull all available posts: GET `/blog/posts`
+    - header: {'content-type': "application/json",x-access-token: str}
+    - request json: {}
+    - return json: {posts: [{id: int, title: str, content: str, owner: str}]}
 5. Pull single post: GET `/blog/post/<post_id>`
+    - header: {'content-type': "application/json",x-access-token: str}
+    - request post_id: int
+    - return json: {id: int, title: str, content: str, owner: str}
 6. Edit existing post: POST `/blog/edit-post`
+    - header: {'content-type': "application/json",x-access-token: str}
+    - request json: {post_id: int, title: str, content: str} 
+    - return json: {message: str}
 7. Remove post: DELETE `/blog/delete-post/<post_id>`
+    - header: {'content-type': "application/json",x-access-token: str}
+    - request post_id: int
+    - return json: {message: str}
 
 ## Details
 
-This repo is built using the git repo: https://github.com/CIRCLECI-GWP/authentication-decorators-in-flask. I chose this repo as it was the closest to how I envisioned creating this project compared to other flask boilerplates out there. I wanted a simple project structure and the JWT implementation was what I had in mind to use for this projects authentication. This project utilizes SQLAlchemy interfaced with SQLite for a database as a larger database wasn't necessary to show proof of concept for this API and the Alembic migration implementation is helpful for the potential future. Additional improvements I would add if given more time is to use a .env file for secret information such as database credentials, api tokens, secret keys, etc. I would add password salting to further secure user passwords inside the database. I would also flesh out the blog post class to tie an image to the post. This could be done by having a separate blob database to store images and the blog post inside the SQL database would contain the path to this image.
+This repo is built using the git repo: https://github.com/CIRCLECI-GWP/authentication-decorators-in-flask. The functional code is located within the library directory where the database models are defined in models.py and the endpoints are defined in resources.py. I chose this repo as it was the closest to how I envisioned creating this project compared to other flask boilerplates out there. I wanted a simple project structure and the JWT implementation was what I had in mind to use for this projects authentication. This project utilizes SQLAlchemy interfaced with SQLite for a database as a larger database wasn't necessary to show proof of concept for this API and the Alembic migration implementation is helpful for the potential future. 
+
+## Improvements
+- Add time to blog post model as the datetime of post is also important data to tie to the post. I would store datetimetz to keep track of date, time, and timezone of the users post.
+- Use a .env file for secret information such as database credentials, api tokens, secret keys, etc. 
+- I would add password salting to further secure user passwords inside the database.
+- I would use table joins in the get all posts and get single post endpoints to improve efficiency when getting the post and the owners username. 
+- I would also use pydantic to define the request and response object structure to ensure consistency within the API.

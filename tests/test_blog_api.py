@@ -163,14 +163,9 @@ class TestAuth(unittest.TestCase):
             'content-type': "application/json",
             'x-access-token': logintoken
         }
-        title = 'test title'
-        content = 'test content'
-        user_id = 'new_user'
-
-        post = PostModel(title=title, content=content,user_id=user_id)
-        with self.app.app_context():
-            db.session.add(post)
-            db.session.commit()
+        
+        test_post = json.dumps({'title': 'test title', 'content': 'test content'})
+        fetch_posts = self.client().post('/blog/create-post', data=test_post, content_type="application/json", headers=headers)
         post_id = 1
         fetch_posts = self.client().get(f'/blog/post/{post_id}', data=self.user_details, content_type="application/json", headers=headers)
         response = fetch_posts.data.decode()
@@ -185,9 +180,6 @@ class TestAuth(unittest.TestCase):
             'content-type': "application/json",
             'x-access-token': logintoken
         }
-        title = 'test title'
-        content = 'test content'
-        user_id = 'new_user'
 
         test_post = json.dumps({'title': 'test title', 'content': 'test content'})
         fetch_posts = self.client().post('/blog/create-post', data=test_post, content_type="application/json", headers=headers)
